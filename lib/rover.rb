@@ -4,16 +4,19 @@ class Rover
   # Initializing the Rover object
   def initialize(plateau, position)
     x, y, @curr_direction = position.split(" ")
-    @x_coordinate = x.to_i
-    @y_coordinate = y.to_i
+    if is_position_available?(x, y)
+      @x_coordinate = x.to_i
+      @y_coordinate = y.to_i
 
-    @plateau = Plateau.new(plateau)
+      @plateau = Plateau.new(plateau)
+    end
   end
 
   # Method to execute the instructions
   #:@params series: String
-  def exec_instructions(series)
-    series.split("").each {|command| action(command)}
+  def exec_instructions(pattern)
+    pattern.split("").each {|command| action(command)}
+
     "#{@x_coordinate} #{@y_coordinate} #{@curr_direction}"
   end
 
@@ -55,7 +58,7 @@ class Rover
              when 'S' then [0, -1] unless cannot_move?
              when 'E' then [1, 0] unless cannot_move?
            end
-
+    is_position_available?(@x_coordinate + x, @y_coordinate + y)
     @x_coordinate += x
     @y_coordinate += y
   end
@@ -68,5 +71,13 @@ class Rover
       when 'W' then @x_coordinate == @plateau.west_end ? true : false
       when 'E' then @x_coordinate == @plateau.east_end ? true : false
     end
+  end
+
+  def is_position_available?(x, y, moving=false)
+    $ROVERS.each { |temp|
+      if [ temp.x_coordinate, temp.y_coordinate ] ==  [x.to_i, y.to_i ]
+        raise RuntimeError
+      end
+    }
   end
 end
